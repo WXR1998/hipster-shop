@@ -57,10 +57,6 @@ func (fe *frontendServer) homeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	products, err := fe.getProducts(r.Context())
-	for i := 0; i <= 1000; i++ {
-		for j := 0; j <= 10000; j++ {
-		}
-	}
 	if err != nil {
 		renderHTTPError(log, r, w, errors.Wrap(err, "could not retrieve products"), http.StatusInternalServerError)
 		return
