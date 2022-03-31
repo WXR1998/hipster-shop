@@ -51,7 +51,7 @@ spec:
         - name: FRONTEND_ADDR
           value: "frontend:80"
       containers:
-      - name: main
+      - name: server
         image: loadgenerator:normal
         imagePullPolicy: Always
         env:

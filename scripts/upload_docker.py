@@ -1,7 +1,7 @@
 import os
 from pygit2 import Repository
 
-root = os.path.dirname(__file__)
+root = os.path.join(os.path.dirname(__file__), '..', 'src')
 repo = Repository(os.path.join(root, '..'))
 version = repo.head.shorthand
 
