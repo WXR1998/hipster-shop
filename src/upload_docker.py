@@ -15,5 +15,4 @@ def main(version: str):
     print(f'上传 {version} 版本的docker完毕')
 
 if __name__ == '__main__':
-    # main(version)
-    print(version)
+    main(version)
