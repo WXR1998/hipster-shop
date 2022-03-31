@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
         - name: server
-          image: shippingservice
+          image: shippingservice:normal
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 50051

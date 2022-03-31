@@ -29,7 +29,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: server
-        image: recommendationservice
+        image: recommendationservice:normal
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080

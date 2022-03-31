@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apiVersion: skaffold/v1beta2
+apiVersion: skaffold/v2beta28
 kind: Config
 build:
   artifacts:
@@ -43,7 +43,8 @@ build:
     - image: loadgenerator
       context: src/loadgenerator
   tagPolicy:
-    gitCommit: {}
+    customTemplate:
+      template: "normal"
   local:
     push: true
 deploy:

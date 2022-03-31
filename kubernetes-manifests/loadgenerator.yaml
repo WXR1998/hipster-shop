@@ -52,7 +52,7 @@ spec:
           value: "frontend:80"
       containers:
       - name: main
-        image: loadgenerator
+        image: loadgenerator:normal
         imagePullPolicy: Always
         env:
         - name: FRONTEND_ADDR

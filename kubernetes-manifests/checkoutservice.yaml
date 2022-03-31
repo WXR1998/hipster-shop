@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
         - name: server
-          image: checkoutservice
+          image: checkoutservice:normal
           imagePullPolicy: IfNotPresent
           ports:
           - containerPort: 5050

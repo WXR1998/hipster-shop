@@ -29,7 +29,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: server
-        image: currencyservice
+        image: currencyservice:normal
         imagePullPolicy: IfNotPresent
         ports:
         - name: grpc

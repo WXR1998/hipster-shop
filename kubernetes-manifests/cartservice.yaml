@@ -33,7 +33,7 @@ spec:
           command: ["/bin/sh", "-c", "for i in $(seq 1 2000); do nc -zvw1 redis-cart 6379 && exit 0 || sleep 5; done; exit 1"]
       containers:
       - name: server
-        image: cartservice
+        image: cartservice:normal
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 7070
