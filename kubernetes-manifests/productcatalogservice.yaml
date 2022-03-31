@@ -29,7 +29,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: server
-        image: productcatalogservice:normal
+        image: productcatalogservice
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3550

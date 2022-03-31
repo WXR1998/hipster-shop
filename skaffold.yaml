@@ -44,7 +44,7 @@ build:
       context: src/loadgenerator
   tagPolicy:
     customTemplate:
-      template: "normal"
+      template: "hicpu1"
   local:
     push: true
 deploy:
