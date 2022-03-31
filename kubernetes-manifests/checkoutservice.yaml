@@ -17,6 +17,7 @@ kind: Deployment
 metadata:
   name: checkoutservice
 spec:
+  replicas: 3
   selector:
     matchLabels:
       app: checkoutservice
@@ -28,6 +29,7 @@ spec:
       containers:
         - name: server
           image: checkoutservice
+          imagePullPolicy: IfNotPresent
           ports:
           - containerPort: 5050
           readinessProbe:

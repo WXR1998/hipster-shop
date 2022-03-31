@@ -16,10 +16,10 @@ kind: Deployment
 metadata:
   name: loadgenerator
 spec:
+  replicas: 3
   selector:
     matchLabels:
       app: loadgenerator
-  replicas: 1
   template:
     metadata:
       labels:
@@ -53,6 +53,7 @@ spec:
       containers:
       - name: main
         image: loadgenerator
+        imagePullPolicy: Always
         env:
         - name: FRONTEND_ADDR
           value: "frontend:80"

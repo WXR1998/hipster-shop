@@ -29,7 +29,7 @@ run_skaffold () {
   echo Running skaffold to build and deploy the application
   echo If this is you\'re first time building, it could take around ~20 minutes.
   echo Time to grab some coffee!
-  skaffold run
+  skaffold run --default-repo=docker.peidan.me/wxr20/hipster-shop
 }
 
 # Success

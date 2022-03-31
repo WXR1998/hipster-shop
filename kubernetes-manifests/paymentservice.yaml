@@ -17,6 +17,7 @@ kind: Deployment
 metadata:
   name: paymentservice
 spec:
+  replicas: 3
   selector:
     matchLabels:
       app: paymentservice
@@ -29,6 +30,7 @@ spec:
       containers:
       - name: server
         image: paymentservice
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 50051
         envFrom:

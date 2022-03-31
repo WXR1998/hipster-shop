@@ -44,10 +44,13 @@ build:
       context: src/loadgenerator
   tagPolicy:
     gitCommit: {}
+  local:
+    push: true
 deploy:
   kubectl:
     manifests:
       - ./kubernetes-manifests/**.yaml
+      # - ./istio-manifests/**.yaml
     # Uncomment below to run lightstep satellite with prometheus
     # - ./kubernetes-manifests/satellite/**.yaml
 profiles:

@@ -17,6 +17,7 @@ kind: Deployment
 metadata:
   name: productcatalogservice
 spec:
+  replicas: 3
   selector:
     matchLabels:
       app: productcatalogservice
@@ -29,6 +30,7 @@ spec:
       containers:
       - name: server
         image: productcatalogservice
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3550
         envFrom:

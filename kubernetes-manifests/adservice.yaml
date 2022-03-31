@@ -17,6 +17,7 @@ kind: Deployment
 metadata:
   name: adservice
 spec:
+  replicas: 3
   selector:
     matchLabels:
       app: adservice
@@ -29,6 +30,7 @@ spec:
       containers:
         - name: server
           image: adservice
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 9555
           env:

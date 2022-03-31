@@ -17,6 +17,7 @@ kind: Deployment
 metadata:
   name: cartservice
 spec:
+  replicas: 3
   selector:
     matchLabels:
       app: cartservice
@@ -25,14 +26,15 @@ spec:
       labels:
         app: cartservice
     spec:
-      terminationGracePeriodSeconds: 5
+      terminationGracePeriodSeconds: 10
       initContainers:
         - name: init-wait-for-redis
           image: alpine
-          command: ["/bin/sh", "-c", "for i in $(seq 1 300); do nc -zvw1 redis-cart 6379 && exit 0 || sleep 3; done; exit 1"]
+          command: ["/bin/sh", "-c", "for i in $(seq 1 2000); do nc -zvw1 redis-cart 6379 && exit 0 || sleep 5; done; exit 1"]
       containers:
       - name: server
         image: cartservice
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 7070
         envFrom:
@@ -63,11 +65,11 @@ spec:
             cpu: 300m
             memory: 128Mi
         readinessProbe:
-          initialDelaySeconds: 15
+          initialDelaySeconds: 30
           exec:
             command: ["/bin/grpc_health_probe", "-addr=:7070", "-rpc-timeout=5s"]
         livenessProbe:
-          initialDelaySeconds: 15
+          initialDelaySeconds: 30
           periodSeconds: 10
           exec:
             command: ["/bin/grpc_health_probe", "-addr=:7070", "-rpc-timeout=5s"]

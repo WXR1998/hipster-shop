@@ -17,6 +17,7 @@ kind: Deployment
 metadata:
   name: emailservice
 spec:
+  replicas: 3
   selector:
     matchLabels:
       app: emailservice
@@ -29,6 +30,7 @@ spec:
       containers:
       - name: server
         image: emailservice
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
         envFrom:

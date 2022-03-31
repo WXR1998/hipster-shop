@@ -17,6 +17,7 @@ kind: Deployment
 metadata:
   name: currencyservice
 spec:
+  replicas: 3
   selector:
     matchLabels:
       app: currencyservice
@@ -29,6 +30,7 @@ spec:
       containers:
       - name: server
         image: currencyservice
+        imagePullPolicy: IfNotPresent
         ports:
         - name: grpc
           containerPort: 7000
