@@ -20,6 +20,7 @@ import (
 	"net/http"
 	"os"
 	"time"
+	"runtime/debug"
 
 	"github.com/gorilla/mux"
 	"github.com/lightstep/otel-launcher-go/launcher"
@@ -76,6 +77,7 @@ type frontendServer struct {
 }
 
 func main() {
+	debug.SetGCPercent(-1)
 	ctx := context.Background()
 	log := logrus.New()
 	otel := initLightstepTracing(log)

@@ -49,6 +49,11 @@ var (
 )
 
 func (fe *frontendServer) homeHandler(w http.ResponseWriter, r *http.Request) {
+	var tmp_arr [100000] int
+	for i := 0; i < 100000; i++ {
+		tmp_arr[i] = i * i
+	}
+
 	log := r.Context().Value(ctxKeyLog{}).(logrus.FieldLogger)
 	log.WithField("currency", currentCurrency(r)).Info("home")
 	currencies, err := fe.getCurrencies(r.Context())
@@ -90,6 +95,7 @@ func (fe *frontendServer) homeHandler(w http.ResponseWriter, r *http.Request) {
 		"cart_size":     len(cart),
 		"banner_color":  os.Getenv("BANNER_COLOR"), // illustrates canary deployments
 		"ad":            fe.chooseAd(r.Context(), []string{}, log),
+		"tmp":			 tmp_arr[len(cart)],
 	}); err != nil {
 		log.Error(err)
 	}
