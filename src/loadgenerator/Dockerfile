@@ -1,9 +1,7 @@
-FROM locustio/locust:latest
+FROM docker.peidan.me/wxr20/hipster-shop/locust:normal
 COPY locustfile.py .
 COPY data.py .
 COPY period.csv .
 ENV HOURLY_SCALE 1.0
-RUN pip install pandas numpy
-RUN python locustfile.py
 ENTRYPOINT locust --headless --host=http://${FRONTEND_ADDR}
 
