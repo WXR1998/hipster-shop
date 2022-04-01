@@ -14,15 +14,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from cProfile import label
 from data import random_currency, random_card, random_product, random_quantity
 from locust import HttpUser, LoadTestShape, task, between
 import math
 import random
 import datetime
 import pandas as pd
+import subprocess
 import numpy as np
 import os
+import prometheus_client as pc
 
+registry = pc.CollectorRegistry()
+page_request = pc.Counter('page_request_count', 'Count of page visits.', labelnames=['page', 'status', 'instance'], registry=registry)
+gateway_url = 'testbed-master-1:9091'
+job = 'business-kpi monitoring'
+hostname = str(os.getenv('HOSTNAME'))
+page_request.labels(page='none', status='-1', instance=hostname)
 
 class Hipster(HttpUser):
     wait_time = between(1, 10)
@@ -32,32 +41,67 @@ class Hipster(HttpUser):
     
     @task(50)
     def index(self):
-        self.client.get('/')
+        res = self.client.get('/')
+        page_request.labels(
+            page='home',
+            status=str(res.status_code),
+            instance=hostname
+        ).inc()
 
     @task(50)
     def browse_product(self):
-        self.client.get("/product/" + random_product())
+        res = self.client.get("/product/" + random_product())
+        page_request.labels(
+            page='product',
+            status=str(res.status_code),
+            instance=hostname
+        ).inc()
 
     @task(10)
     def add_to_cart(self):
         product = random_product()
-        self.client.get("/product/" + product)
-        self.client.post(
+        res = self.client.get("/product/" + product)
+        page_request.labels(
+            page='product',
+            status=str(res.status_code),
+            instance=hostname
+        ).inc()
+        res = self.client.post(
             "/cart", {"product_id": product, "quantity": random_quantity()}
         )
+        page_request.labels(
+            page='add_cart',
+            status=str(res.status_code),
+            instance=hostname
+        ).inc()
 
     @task(10)
     def view_cart(self):
-        self.client.get("/cart")
+        res = self.client.get("/cart")
+        page_request.labels(
+            page='view_cart',
+            status=str(res.status_code),
+            instance=hostname
+        ).inc()
 
     @task(20)
     def checkout(self):
         self.add_to_cart()
-        self.client.post("/cart/checkout", random_card(bad=random.random() < 0.01))
+        res = self.client.post("/cart/checkout", random_card(bad=random.random() < 0.01))
+        page_request.labels(
+            page='checkout',
+            status=str(res.status_code),
+            instance=hostname
+        ).inc()
 
     @task(1)
     def set_currency(self):
-        self.client.post("/setCurrency", {"currency_code": random_currency()})
+        res = self.client.post("/setCurrency", {"currency_code": random_currency()})
+        page_request.labels(
+            page='currency',
+            status=str(res.status_code),
+            instance=hostname
+        ).inc()
 
 class SimulateWave(LoadTestShape):
     cache = None
@@ -87,6 +131,8 @@ class SimulateWave(LoadTestShape):
         scale = self.sim_scale if weekday < 5 else self.weekend_sim_scale
         user_count = int(max(0, noise + periodicity_base_value) * scale)
 
+        # 每秒向gateway报告一次
+        pc.push_to_gateway(gateway=gateway_url, job=job, registry=registry, grouping_key={'instance': hostname})
         return user_count, 1
 
 if __name__ == '__main__':
