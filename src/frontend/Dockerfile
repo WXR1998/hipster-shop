@@ -11,9 +11,6 @@ FROM alpine as release
 RUN apk add --no-cache ca-certificates \
     busybox-extras net-tools bind-tools
 
-FROM docker.peidan.me/wxr20/hipster-shop/chaosblade as chaosblade
-RUN /usr/local/chaosblade/blade c cpu fullload
-
 WORKDIR /frontend
 COPY --from=builder /go/bin/frontend /frontend/server
 COPY ./templates ./templates

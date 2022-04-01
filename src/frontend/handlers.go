@@ -20,7 +20,7 @@ import (
 	"html/template"
 	"math/rand"
 	"net/http"
-	"os"
+	// "os"
 	"strconv"
 	"time"
 
@@ -48,54 +48,68 @@ var (
 	cartCounter     = metric.Must(meter).NewInt64Counter("frontend.cart.count")
 )
 
-func (fe *frontendServer) homeHandler(w http.ResponseWriter, r *http.Request) {
-	log := r.Context().Value(ctxKeyLog{}).(logrus.FieldLogger)
-	log.WithField("currency", currentCurrency(r)).Info("home")
-	currencies, err := fe.getCurrencies(r.Context())
-	if err != nil {
-		renderHTTPError(log, r, w, errors.Wrap(err, "could not retrieve currencies"), http.StatusInternalServerError)
-		return
-	}
-	products, err := fe.getProducts(r.Context())
-	if err != nil {
-		renderHTTPError(log, r, w, errors.Wrap(err, "could not retrieve products"), http.StatusInternalServerError)
-		return
-	}
-	cart, err := fe.getCart(r.Context(), sessionID(r))
-	if err != nil {
-		renderHTTPError(log, r, w, errors.Wrap(err, "could not retrieve cart"), http.StatusInternalServerError)
-		return
-	}
-
-	type productView struct {
-		Item  *pb.Product
-		Price *pb.Money
-	}
-	ps := make([]productView, len(products))
-	for i, p := range products {
-		price, err := fe.convertCurrency(r.Context(), p.GetPriceUsd(), currentCurrency(r))
-		if err != nil {
-			renderHTTPError(log, r, w, errors.Wrapf(err, "failed to do currency conversion for product %s", p.GetId()), http.StatusInternalServerError)
-			return
+func hicpu() int {
+	var res = 1
+	for i := 1; i <= 10000; i++ {
+		for j := 1; j <= 10000; j++ {
+			if rand.Intn(100000) == j {
+				res = i * j
+			}
 		}
-		ps[i] = productView{p, price}
 	}
+	return res
+}
 
-	if err := templates.ExecuteTemplate(w, "home", map[string]interface{}{
-		"session_id":    sessionID(r),
-		"request_id":    r.Context().Value(ctxKeyRequestID{}),
-		"user_currency": currentCurrency(r),
-		"currencies":    currencies,
-		"products":      ps,
-		"cart_size":     len(cart),
-		"banner_color":  os.Getenv("BANNER_COLOR"), // illustrates canary deployments
-		"ad":            fe.chooseAd(r.Context(), []string{}, log),
-	}); err != nil {
-		log.Error(err)
-	}
+func (fe *frontendServer) homeHandler(w http.ResponseWriter, r *http.Request) {
+	hicpu()
+	// log := r.Context().Value(ctxKeyLog{}).(logrus.FieldLogger)
+	// log.WithField("currency", currentCurrency(r)).Info("home")
+	// currencies, err := fe.getCurrencies(r.Context())
+	// if err != nil {
+	// 	renderHTTPError(log, r, w, errors.Wrap(err, "could not retrieve currencies"), http.StatusInternalServerError)
+	// 	return
+	// }
+	// products, err := fe.getProducts(r.Context())
+	// if err != nil {
+	// 	renderHTTPError(log, r, w, errors.Wrap(err, "could not retrieve products"), http.StatusInternalServerError)
+	// 	return
+	// }
+	// cart, err := fe.getCart(r.Context(), sessionID(r))
+	// if err != nil {
+	// 	renderHTTPError(log, r, w, errors.Wrap(err, "could not retrieve cart"), http.StatusInternalServerError)
+	// 	return
+	// }
+
+	// type productView struct {
+	// 	Item  *pb.Product
+	// 	Price *pb.Money
+	// }
+	// ps := make([]productView, len(products))
+	// for i, p := range products {
+	// 	price, err := fe.convertCurrency(r.Context(), p.GetPriceUsd(), currentCurrency(r))
+	// 	if err != nil {
+	// 		renderHTTPError(log, r, w, errors.Wrapf(err, "failed to do currency conversion for product %s", p.GetId()), http.StatusInternalServerError)
+	// 		return
+	// 	}
+	// 	ps[i] = productView{p, price}
+	// }
+
+	// if err := templates.ExecuteTemplate(w, "home", map[string]interface{}{
+	// 	"session_id":    sessionID(r),
+	// 	"request_id":    r.Context().Value(ctxKeyRequestID{}),
+	// 	"user_currency": currentCurrency(r),
+	// 	"currencies":    currencies,
+	// 	"products":      ps,
+	// 	"cart_size":     len(cart),
+	// 	"banner_color":  os.Getenv("BANNER_COLOR"), // illustrates canary deployments
+	// 	"ad":            fe.chooseAd(r.Context(), []string{}, log),
+	// }); err != nil {
+	// 	log.Error(err)
+	// }
 }
 
 func (fe *frontendServer) productHandler(w http.ResponseWriter, r *http.Request) {
+	hicpu()
 	log := r.Context().Value(ctxKeyLog{}).(logrus.FieldLogger)
 	id := mux.Vars(r)["id"]
 	productLabel := label.String("productId", id)
@@ -168,6 +182,7 @@ func (fe *frontendServer) productHandler(w http.ResponseWriter, r *http.Request)
 }
 
 func (fe *frontendServer) addToCartHandler(w http.ResponseWriter, r *http.Request) {
+	hicpu()
 	log := r.Context().Value(ctxKeyLog{}).(logrus.FieldLogger)
 	quantity, _ := strconv.ParseUint(r.FormValue("quantity"), 10, 32)
 	productID := r.FormValue("product_id")
@@ -203,6 +218,7 @@ func (fe *frontendServer) addToCartHandler(w http.ResponseWriter, r *http.Reques
 }
 
 func (fe *frontendServer) emptyCartHandler(w http.ResponseWriter, r *http.Request) {
+	hicpu()
 	log := r.Context().Value(ctxKeyLog{}).(logrus.FieldLogger)
 	log.Debug("emptying cart")
 
@@ -215,6 +231,7 @@ func (fe *frontendServer) emptyCartHandler(w http.ResponseWriter, r *http.Reques
 }
 
 func (fe *frontendServer) viewCartHandler(w http.ResponseWriter, r *http.Request) {
+	hicpu()
 	log := r.Context().Value(ctxKeyLog{}).(logrus.FieldLogger)
 	log.Debug("view user cart")
 	currencies, err := fe.getCurrencies(r.Context())
@@ -286,6 +303,7 @@ func (fe *frontendServer) viewCartHandler(w http.ResponseWriter, r *http.Request
 }
 
 func (fe *frontendServer) placeOrderHandler(w http.ResponseWriter, r *http.Request) {
+	hicpu()
 	log := r.Context().Value(ctxKeyLog{}).(logrus.FieldLogger)
 	log.Debug("placing order")
 
@@ -349,6 +367,7 @@ func (fe *frontendServer) placeOrderHandler(w http.ResponseWriter, r *http.Reque
 }
 
 func (fe *frontendServer) logoutHandler(w http.ResponseWriter, r *http.Request) {
+	hicpu()
 	log := r.Context().Value(ctxKeyLog{}).(logrus.FieldLogger)
 	log.Debug("logging out")
 	for _, c := range r.Cookies() {
@@ -361,6 +380,7 @@ func (fe *frontendServer) logoutHandler(w http.ResponseWriter, r *http.Request) 
 }
 
 func (fe *frontendServer) setCurrencyHandler(w http.ResponseWriter, r *http.Request) {
+	hicpu()
 	log := r.Context().Value(ctxKeyLog{}).(logrus.FieldLogger)
 	cur := r.FormValue("currency_code")
 	log.WithField("curr.new", cur).WithField("curr.old", currentCurrency(r)).
@@ -384,6 +404,7 @@ func (fe *frontendServer) setCurrencyHandler(w http.ResponseWriter, r *http.Requ
 // chooseAd queries for advertisements available and randomly chooses one, if
 // available. It ignores the error retrieving the ad since it is not critical.
 func (fe *frontendServer) chooseAd(ctx context.Context, ctxKeys []string, log logrus.FieldLogger) *pb.Ad {
+	hicpu()
 	ads, err := fe.getAd(ctx, ctxKeys)
 	if err != nil {
 		log.WithField("error", err).Warn("failed to retrieve ads")
@@ -393,6 +414,7 @@ func (fe *frontendServer) chooseAd(ctx context.Context, ctxKeys []string, log lo
 }
 
 func renderHTTPError(log logrus.FieldLogger, r *http.Request, w http.ResponseWriter, err error, code int) {
+	hicpu()
 	log.WithField("error", err).Error("request error")
 	errMsg := fmt.Sprintf("%+v", err)
 
@@ -406,6 +428,7 @@ func renderHTTPError(log logrus.FieldLogger, r *http.Request, w http.ResponseWri
 }
 
 func currentCurrency(r *http.Request) string {
+	hicpu()
 	c, _ := r.Cookie(cookieCurrency)
 	if c != nil {
 		return c.Value
@@ -414,6 +437,7 @@ func currentCurrency(r *http.Request) string {
 }
 
 func sessionID(r *http.Request) string {
+	hicpu()
 	v := r.Context().Value(ctxKeySessionID{})
 	if v != nil {
 		return v.(string)
@@ -422,6 +446,7 @@ func sessionID(r *http.Request) string {
 }
 
 func cartIDs(c []*pb.CartItem) []string {
+	hicpu()
 	out := make([]string, len(c))
 	for i, v := range c {
 		out[i] = v.GetProductId()
@@ -430,5 +455,6 @@ func cartIDs(c []*pb.CartItem) []string {
 }
 
 func renderMoney(money pb.Money) string {
+	hicpu()
 	return fmt.Sprintf("%s %d.%02d", money.GetCurrencyCode(), money.GetUnits(), money.GetNanos()/10000000)
 }
