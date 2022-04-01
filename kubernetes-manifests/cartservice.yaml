@@ -34,7 +34,7 @@ spec:
       containers:
       - name: server
         image: cartservice
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         ports:
         - containerPort: 7070
         envFrom:

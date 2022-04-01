@@ -30,7 +30,7 @@ spec:
       containers:
       - name: server
         image: emailservice
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         ports:
         - containerPort: 8080
         envFrom:

@@ -30,7 +30,7 @@ spec:
       containers:
       - name: server
         image: paymentservice
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         ports:
         - containerPort: 50051
         envFrom:

@@ -30,7 +30,7 @@ spec:
       containers:
         - name: server
           image: adservice
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           ports:
             - containerPort: 9555
           env:
