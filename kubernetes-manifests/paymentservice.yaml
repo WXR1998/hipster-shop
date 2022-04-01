@@ -29,8 +29,8 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: server
-        image: paymentservice:normal
-        imagePullPolicy: IfNotPresent
+        image: paymentservice
+        imagePullPolicy: Always
         ports:
         - containerPort: 50051
         envFrom:
