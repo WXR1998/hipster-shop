@@ -1,4 +1,4 @@
-/frontend/server 2>&1 &
+node index.js 2>&1 &
 # /usr/local/chaosblade/blade c cpu fullload 2>&1 &
 
 while [[ true ]]; do

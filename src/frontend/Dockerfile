@@ -6,6 +6,7 @@ WORKDIR /go/src/$PROJECT
 
 # restore dependencies
 COPY . .
+ENV GOPROXY=https://goproxy.cn,direct
 RUN go install .
 
 FROM alpine as release
