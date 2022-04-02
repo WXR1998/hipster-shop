@@ -10,7 +10,14 @@ def main(version: str):
         if 'Dockerfile' in file:
             work_dir = os.path.basename(r)
             image_name = f'docker.peidan.me/wxr20/hipster-shop/{work_dir}:{version}'
-            os.system(f'docker build -t {image_name} {r}')
+            # os.system(f'docker build -t {image_name} {r} \
+            #     --build-arg GOPROXY=https://goproxy.cn \
+            #     --build-arg  http_proxy=http://wxr.cool:60000 \
+            #     --build-arg https_proxy=http://wxr.cool:60000 \
+            #     --build-arg npm_config_proxy=https://registry.npm.taobao.org')
+            os.system(f'docker build -t {image_name} {r} \
+                --build-arg GOPROXY=https://goproxy.cn \
+                --build-arg GO111MODULE=on')
             os.system(f'docker push {image_name}')
             os.system(f'docker pull {image_name}')
     print(f'上传 {version} 版本的docker完毕')

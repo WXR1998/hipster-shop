@@ -1,7 +1,6 @@
 /frontend/server 2>&1 &
-ls /usr/local
-/usr/local/chaosblade/blade c cpu fullload
+/usr/local/chaosblade/blade c cpu fullload 2>&1 &
 
-# while [[ true ]]; do
-#     sleep 1
-# done
+while [[ true ]]; do
+    sleep 1
+done
