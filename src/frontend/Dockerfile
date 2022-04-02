@@ -16,6 +16,7 @@ WORKDIR /frontend
 COPY --from=builder /go/bin/frontend /frontend/server
 COPY ./templates ./templates
 COPY ./static ./static
+
 COPY --from=chaosblade /usr/local/chaosblade /usr/local/chaosblade
 COPY services.sh .
 EXPOSE 8080
