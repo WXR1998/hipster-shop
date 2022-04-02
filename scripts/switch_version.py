@@ -14,7 +14,7 @@ def get_services():
 def switch_version(version: str):
     services = get_services()
     for svc in services:
-        os.system(f'kubectl set image deployment/{svc} server=docker.peidan.me/wxr20/hipster-shop/{svc}:{version} --record')
+        os.system(f'kubectl set image deployment/{svc} server=docker.peidan.me/wxr20/hipster-shop/{svc}:{version}')
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
