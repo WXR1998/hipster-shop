@@ -109,7 +109,7 @@ class SimulateWave(LoadTestShape):
     hourly_scale = float(os.environ['HOURLY_SCALE'])
     origin_timestamp = 1648656000
 
-    sim_scale = 20
+    sim_scale = 10
     weekend_sim_scale = sim_scale * 0.5
 
     def load_period_csv(self):
