@@ -1,18 +1,18 @@
-FROM golang:1.14-alpine as builder
+FROM docker.peidan.me/wxr20/hipster-shop/chaosblade as chaosblade
+FROM docker.peidan.me/wxr20/hipster-shop/shippingservice:base as builder
 
-ENV PROJECT github.com/lightstep/hipster-shop/src/shippingservice
 WORKDIR /go/src/$PROJECT
-
 COPY . .
-RUN go get -d -v
 RUN go install .
 
 FROM alpine as release
-RUN apk add --no-cache ca-certificates
-RUN GRPC_HEALTH_PROBE_VERSION=v0.3.6 && \
-    wget -qO/bin/grpc_health_probe https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/${GRPC_HEALTH_PROBE_VERSION}/grpc_health_probe-linux-amd64 && \
-    chmod +x /bin/grpc_health_probe
+RUN apk add --no-cache ca-certificates bash
+COPY --from=docker.peidan.me/wxr20/hipster-shop/grpc_health_probe /bin/grpc_health_probe /bin/grpc_health_probe
+RUN chmod +x /bin/grpc_health_probe
+COPY --from=chaosblade /usr/local/chaosblade /usr/local/chaosblade
 COPY --from=builder /go/bin/shippingservice /shippingservice
+COPY services.sh .
+
 ENV APP_PORT=50051
 EXPOSE 50051
-ENTRYPOINT ["/shippingservice"]
+ENTRYPOINT ["bash", "services.sh"]
