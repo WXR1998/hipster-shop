@@ -1,33 +1,8 @@
-FROM node:14-alpine as base
-
-FROM base as builder
-
-# Some packages (e.g. @google-cloud/profiler) require additional
-# deps for post-install scripts
-RUN apk add --update --no-cache \
-    python3 \
-    make \
-    g++ \
-    git
-
+FROM docker.peidan.me/wxr20/hipster-shop/chaosblade as chaosblade
+FROM docker.peidan.me/wxr20/hipster-shop/paymentservice:base 
 WORKDIR /usr/src/app
-
-COPY package*.json ./
-
-RUN npm install --only=production
-
-FROM base
-
-RUN GRPC_HEALTH_PROBE_VERSION=v0.3.6 && \
-    wget -qO/bin/grpc_health_probe https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/${GRPC_HEALTH_PROBE_VERSION}/grpc_health_probe-linux-amd64 && \
-    chmod +x /bin/grpc_health_probe
-
-WORKDIR /usr/src/app
-
-COPY --from=builder /usr/src/app/node_modules ./node_modules
-
 COPY . .
-
+COPY --from=chaosblade /usr/local/chaosblade /usr/local/chaosblade
+COPY services.sh .
 EXPOSE 50051
-
-ENTRYPOINT [ "node", "index.js" ]
+ENTRYPOINT ["sh", "services.sh"]
