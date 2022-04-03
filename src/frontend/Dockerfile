@@ -1,3 +1,4 @@
+FROM docker.peidan.me/wxr20/hipster-shop/chaosblade as chaosblade
 FROM golang:1.14-alpine as builder
 
 ENV PROJECT github.com/lightstep/hipster-shop/src/frontend
@@ -5,6 +6,7 @@ WORKDIR /go/src/$PROJECT
 
 # restore dependencies
 COPY . .
+ENV GOPROXY=https://goproxy.cn,direct
 RUN go install .
 
 FROM alpine as release
@@ -15,5 +17,8 @@ WORKDIR /frontend
 COPY --from=builder /go/bin/frontend /frontend/server
 COPY ./templates ./templates
 COPY ./static ./static
+
+COPY --from=chaosblade /usr/local/chaosblade /usr/local/chaosblade
+COPY services.sh .
 EXPOSE 8080
-ENTRYPOINT ["/frontend/server"]
+ENTRYPOINT ["sh", "services.sh"]

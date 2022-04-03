@@ -1,18 +1,17 @@
-FROM golang:1.14-alpine as builder
-
-ENV PROJECT github.com/lightstep/hipster-shop/src/checkoutservice
+FROM docker.peidan.me/wxr20/hipster-shop/chaosblade as chaosblade
+FROM docker.peidan.me/wxr20/hipster-shop/checkoutservice:base as builder
 WORKDIR /go/src/$PROJECT
 
 COPY . .
-RUN go get -d -v
 RUN go build -gcflags='-N -l' -o /checkoutservice .
 
 FROM alpine as release
 RUN apk add --no-cache ca-certificates bash
-RUN GRPC_HEALTH_PROBE_VERSION=v0.3.6 && \
-    wget -qO/bin/grpc_health_probe https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/${GRPC_HEALTH_PROBE_VERSION}/grpc_health_probe-linux-amd64 && \
-    chmod +x /bin/grpc_health_probe
+COPY --from=docker.peidan.me/wxr20/hipster-shop/grpc_health_probe /bin/grpc_health_probe /bin/grpc_health_probe
+RUN chmod +x /bin/grpc_health_probe
 COPY --from=builder /checkoutservice /checkoutservice
+COPY --from=chaosblade /usr/local/chaosblade /usr/local/chaosblade
+COPY services.sh .
 EXPOSE 5050
 
-ENTRYPOINT ["/checkoutservice"]
+ENTRYPOINT ["bash", "services.sh"]

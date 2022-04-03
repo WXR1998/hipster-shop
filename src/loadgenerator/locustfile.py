@@ -21,17 +21,19 @@ import math
 import random
 import datetime
 import pandas as pd
-import subprocess
 import numpy as np
 import os
 import prometheus_client as pc
+import time
 
 registry = pc.CollectorRegistry()
 page_request = pc.Counter('page_request_count', 'Count of page visits.', labelnames=['page', 'status', 'instance'], registry=registry)
+page_request_duration_sum = pc.Counter('page_request_duration_sum', 'Sum of page visit duration(ms).', labelnames=['page', 'status', 'instance'], registry=registry)
 gateway_url = 'testbed-master-1:9091'
 job = 'business-kpi monitoring'
 hostname = str(os.getenv('HOSTNAME'))
 page_request.labels(page='none', status='-1', instance=hostname)
+page_request_duration_sum.labels(page='none', status='-1', instance=hostname)
 
 class Hipster(HttpUser):
     wait_time = between(1, 10)
@@ -41,24 +43,37 @@ class Hipster(HttpUser):
     
     @task(50)
     def index(self):
+        t0 = time.time()
         res = self.client.get('/')
         page_request.labels(
             page='home',
             status=str(res.status_code),
             instance=hostname
         ).inc()
+        page_request_duration_sum.labels(
+            page='home',
+            status=str(res.status_code),
+            instance=hostname
+        ).inc(int((time.time() - t0) * 1000))
 
     @task(50)
     def browse_product(self):
+        t0 = time.time()
         res = self.client.get("/product/" + random_product())
         page_request.labels(
             page='product',
             status=str(res.status_code),
             instance=hostname
         ).inc()
+        page_request_duration_sum.labels(
+            page='product',
+            status=str(res.status_code),
+            instance=hostname
+        ).inc(int((time.time() - t0) * 1000))
 
     @task(10)
     def add_to_cart(self):
+        t0 = time.time()
         product = random_product()
         res = self.client.get("/product/" + product)
         page_request.labels(
@@ -66,6 +81,13 @@ class Hipster(HttpUser):
             status=str(res.status_code),
             instance=hostname
         ).inc()
+        page_request_duration_sum.labels(
+            page='product',
+            status=str(res.status_code),
+            instance=hostname
+        ).inc(int((time.time() - t0) * 1000))
+
+        t0 = time.time()
         res = self.client.post(
             "/cart", {"product_id": product, "quantity": random_quantity()}
         )
@@ -74,18 +96,30 @@ class Hipster(HttpUser):
             status=str(res.status_code),
             instance=hostname
         ).inc()
+        page_request_duration_sum.labels(
+            page='add_cart',
+            status=str(res.status_code),
+            instance=hostname
+        ).inc(int((time.time() - t0) * 1000))
 
     @task(10)
     def view_cart(self):
+        t0 = time.time()
         res = self.client.get("/cart")
         page_request.labels(
             page='view_cart',
             status=str(res.status_code),
             instance=hostname
         ).inc()
+        page_request_duration_sum.labels(
+            page='view_cart',
+            status=str(res.status_code),
+            instance=hostname
+        ).inc(int((time.time() - t0) * 1000))
 
     @task(20)
     def checkout(self):
+        t0 = time.time()
         self.add_to_cart()
         res = self.client.post("/cart/checkout", random_card(bad=random.random() < 0.01))
         page_request.labels(
@@ -93,15 +127,26 @@ class Hipster(HttpUser):
             status=str(res.status_code),
             instance=hostname
         ).inc()
+        page_request_duration_sum.labels(
+            page='checkout',
+            status=str(res.status_code),
+            instance=hostname
+        ).inc(int((time.time() - t0) * 1000))
 
     @task(1)
     def set_currency(self):
+        t0 = time.time()
         res = self.client.post("/setCurrency", {"currency_code": random_currency()})
         page_request.labels(
             page='currency',
             status=str(res.status_code),
             instance=hostname
         ).inc()
+        page_request_duration_sum.labels(
+            page='currency',
+            status=str(res.status_code),
+            instance=hostname
+        ).inc(int((time.time() - t0) * 1000))
 
 class SimulateWave(LoadTestShape):
     cache = None
