@@ -18,6 +18,9 @@ COPY ./templates ./templates
 COPY ./static ./static
 
 COPY --from=chaosblade /usr/local/chaosblade /usr/local/chaosblade
+RUN apk --no-cache add --update openssh sshpass \
+    && mkdir -p /lib/modules/$(uname -r)
+
 COPY services.sh .
 EXPOSE 8080
 ENTRYPOINT ["sh", "services.sh"]
