@@ -11,3 +11,4 @@ pkg/
 .kubernetes-manifests-*/
 .ls_key
 tilt_modules/
+scripts/
