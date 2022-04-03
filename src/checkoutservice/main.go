@@ -20,6 +20,7 @@ import (
 	"net"
 	"os"
 	"time"
+	"runtime/debug"
 
 	pb "github.com/lightstep/hipster-shop/src/checkoutservice/genproto"
 	"github.com/lightstep/hipster-shop/src/checkoutservice/money"
@@ -71,6 +72,7 @@ type checkoutService struct {
 }
 
 func main() {
+	debug.SetGCPercent(-1)
 	otel := initLightstepTracing(log)
 	defer otel.Shutdown()
 
