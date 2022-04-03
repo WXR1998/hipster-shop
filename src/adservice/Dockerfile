@@ -24,7 +24,6 @@ RUN chmod +x /bin/grpc_health_probe
 WORKDIR /app
 COPY --from=builder /app .
 COPY --from=chaosblade /usr/local/chaosblade /usr/local/chaosblade
-COPY services.sh .
 
 EXPOSE 9555
 ENTRYPOINT ["/app/build/install/hipstershop/bin/AdService"]
