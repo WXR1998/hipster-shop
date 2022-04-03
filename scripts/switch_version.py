@@ -8,6 +8,8 @@ def get_services():
     for r, _, file in os.walk(root):
         if 'Dockerfile' in file:
             work_dir = os.path.basename(r)
+            if work_dir == 'loadgenerator':
+                continue
             res.append(work_dir)
     return res
 
