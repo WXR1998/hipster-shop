@@ -20,6 +20,7 @@ import (
 	"net"
 	"os"
 	"time"
+	"math/rand"
 
 	pb "github.com/lightstep/hipster-shop/src/checkoutservice/genproto"
 	"github.com/lightstep/hipster-shop/src/checkoutservice/money"
@@ -141,7 +142,8 @@ func (cs *checkoutService) PlaceOrder(ctx context.Context, req *pb.PlaceOrderReq
 	log.Infof("[PlaceOrder] user_id=%q user_currency=%q", req.UserId, req.UserCurrency)
 
 	orderID, err := uuid.NewUUID()
-	if err != nil {
+	a := rand.Intn(100)
+	if err != nil || a % 3 == 0 {
 		orderCount.Add(ctx, 1, label.String("status", "internalError"))
 		return nil, status.Errorf(codes.Internal, "failed to generate order uuid")
 	}
