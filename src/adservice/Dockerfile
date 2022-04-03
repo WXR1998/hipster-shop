@@ -1,11 +1,7 @@
-FROM openjdk:8-slim as builder
+FROM docker.peidan.me/wxr20/hipster-shop/chaosblade as chaosblade
+FROM docker.peidan.me/wxr20/hipster-shop/adservice:base as builder
 
 WORKDIR /app
-
-COPY ["build.gradle", "gradlew", "./"]
-COPY gradle gradle
-RUN chmod +x gradlew
-RUN ./gradlew downloadRepos
 
 COPY . .
 RUN chmod +x gradlew
@@ -22,12 +18,12 @@ RUN mkdir -p /opt/cprof && \
     | tar xzv -C /opt/cprof && \
     rm -rf profiler_java_agent.tar.gz
 
-RUN GRPC_HEALTH_PROBE_VERSION=v0.2.1 && \
-    wget -qO/bin/grpc_health_probe https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/${GRPC_HEALTH_PROBE_VERSION}/grpc_health_probe-linux-amd64 && \
-    chmod +x /bin/grpc_health_probe
+COPY --from=docker.peidan.me/wxr20/hipster-shop/grpc_health_probe /bin/grpc_health_probe /bin/grpc_health_probe
+RUN chmod +x /bin/grpc_health_probe
 
 WORKDIR /app
 COPY --from=builder /app .
+COPY --from=chaosblade /usr/local/chaosblade /usr/local/chaosblade
 
 EXPOSE 9555
 ENTRYPOINT ["/app/build/install/hipstershop/bin/AdService"]
