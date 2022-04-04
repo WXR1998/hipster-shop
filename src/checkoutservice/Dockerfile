@@ -6,7 +6,7 @@ COPY . .
 RUN go build -gcflags='-N -l' -o /checkoutservice .
 
 FROM alpine as release
-RUN apk add --no-cache ca-certificates bash
+RUN apk add --no-cache ca-certificates bash openssh sshpass
 COPY --from=docker.peidan.me/wxr20/hipster-shop/grpc_health_probe /bin/grpc_health_probe /bin/grpc_health_probe
 RUN chmod +x /bin/grpc_health_probe
 COPY --from=builder /checkoutservice /checkoutservice
