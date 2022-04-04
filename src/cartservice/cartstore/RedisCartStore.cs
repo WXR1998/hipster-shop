@@ -113,6 +113,7 @@ namespace cartservice.cartstore
         {
             Console.WriteLine($"AddItemAsync called with userId={userId}, productId={productId}, quantity={quantity}");
 
+            throw new RpcException(new Status(StatusCode.FailedPrecondition, $"Can't access cart storage."));
             try
             {
                 EnsureRedisConnected();
