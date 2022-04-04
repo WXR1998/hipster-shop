@@ -12,3 +12,4 @@ pkg/
 .ls_key
 tilt_modules/
 scripts/
+src/loadgenerator/
