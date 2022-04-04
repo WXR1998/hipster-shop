@@ -154,7 +154,7 @@ class SimulateWave(LoadTestShape):
     hourly_scale = float(os.environ['HOURLY_SCALE'])
     origin_timestamp = 1648656000
 
-    sim_scale = 10
+    sim_scale = 15
     weekend_sim_scale = sim_scale * 0.5
 
     def load_period_csv(self):
@@ -174,7 +174,7 @@ class SimulateWave(LoadTestShape):
         periodicity_base_value = self.cache[cache_idx]
         noise = np.random.normal(0, 0.1 * periodicity_base_value)
         scale = self.sim_scale if weekday < 5 else self.weekend_sim_scale
-        user_count = int(max(0, noise + periodicity_base_value) * scale)
+        user_count = int(max(1, noise + periodicity_base_value) * scale)
 
         # 每秒向gateway报告一次
         pc.push_to_gateway(gateway=gateway_url, job=job, registry=registry, grouping_key={'instance': hostname})
