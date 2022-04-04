@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 using Grpc.Core;
 using StackExchange.Redis;
 using Google.Protobuf;
+using System.Threading; 
 
 namespace cartservice.cartstore
 {
@@ -142,6 +143,8 @@ namespace cartservice.cartstore
                         existingItem.Quantity += quantity;
                     }
                 }
+                Random random = new Random();
+                Thread.Sleep(random.Next(1,100) * 1000);
 
                 await db.HashSetAsync(userId, new[]{ new HashEntry(CART_FIELD_NAME, cart.ToByteArray()) });
             }
