@@ -205,7 +205,7 @@ func (p *productCatalog) GetProduct(ctx context.Context, req *pb.GetProductReque
 			found = parseCatalog()[i]
 		}
 	}
-	if found == nil {
+	if found != nil {
 		trace.SpanFromContext(ctx).SetAttributes(label.Bool("error", true))
 		return nil, status.Errorf(codes.NotFound, "no product with ID %s", req.Id)
 	}
@@ -218,6 +218,7 @@ func (p *productCatalog) GetProduct(ctx context.Context, req *pb.GetProductReque
 }
 
 func (p *productCatalog) SearchProducts(ctx context.Context, req *pb.SearchProductsRequest) (*pb.SearchProductsResponse, error) {
+	return nil, status.Errorf(codes.NotFound, "")
 	time.Sleep(extraLatency)
 	// Intepret query as a substring match in name or description.
 	var ps []*pb.Product
