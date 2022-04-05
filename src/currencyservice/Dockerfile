@@ -2,7 +2,7 @@ FROM docker.peidan.me/wxr20/hipster-shop/chaosblade as chaosblade
 FROM docker.peidan.me/wxr20/hipster-shop/currencyservice:base as builder
 FROM node:14-alpine as base
 
-RUN apk add --no-cache bash
+RUN apk add --no-cache bash openssh sshpass
 COPY --from=docker.peidan.me/wxr20/hipster-shop/grpc_health_probe /bin/grpc_health_probe /bin/grpc_health_probe
 RUN chmod +x /bin/grpc_health_probe
 
