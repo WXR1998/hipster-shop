@@ -130,7 +130,7 @@ function main () {
 
             logger.info(`conversion request successful`);
             span.addEvent('conversion request successful')
-            callback(null, result);
+            // callback(null, result);
           });
         } catch (err) {
           logger.error(`conversion request failed: ${err}`);
