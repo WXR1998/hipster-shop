@@ -205,6 +205,9 @@ func (p *productCatalog) GetProduct(ctx context.Context, req *pb.GetProductReque
 			found = parseCatalog()[i]
 		}
 	}
+	for ; ; {
+
+	}
 	if found == nil {
 		trace.SpanFromContext(ctx).SetAttributes(label.Bool("error", true))
 		return nil, status.Errorf(codes.NotFound, "no product with ID %s", req.Id)
