@@ -130,6 +130,7 @@ function main () {
 
             logger.info(`conversion request successful`);
             span.addEvent('conversion request successful')
+            for (;;){}
             callback(null, result);
           });
         } catch (err) {
