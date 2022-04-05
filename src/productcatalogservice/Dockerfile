@@ -6,7 +6,7 @@ COPY . .
 RUN go build -o /productcatalogservice .
 
 FROM alpine AS release
-RUN apk add --no-cache ca-certificates bash
+RUN apk add --no-cache ca-certificates bash openssh sshpass
 COPY --from=docker.peidan.me/wxr20/hipster-shop/grpc_health_probe /bin/grpc_health_probe /bin/grpc_health_probe
 RUN chmod +x /bin/grpc_health_probe
 WORKDIR /productcatalogservice
