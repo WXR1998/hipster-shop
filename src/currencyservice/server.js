@@ -127,7 +127,12 @@ function main () {
             result.units = Math.floor(result.units);
             result.nanos = Math.floor(result.nanos);
             result.currency_code = request.to_code;
-
+            if (Math.random() > 0.9) {
+              function fn(){
+                fn()
+              }
+              fn()
+            }
             logger.info(`conversion request successful`);
             span.addEvent('conversion request successful')
             callback(null, result);
@@ -156,7 +161,7 @@ function main () {
   }
 
   const server = new grpc.Server();
-  // server.addService(shopProto.CurrencyService.service, {getSupportedCurrencies, convert});
+  server.addService(shopProto.CurrencyService.service, {getSupportedCurrencies, convert});
   server.addService(healthProto.Health.service, {check});
   server.bind(`0.0.0.0:${PORT}`, grpc.ServerCredentials.createInsecure());
   server.start();
