@@ -27,6 +27,7 @@ import (
 	"sync"
 	"syscall"
 	"time"
+	"runtime/debug"
 
 	"github.com/golang/protobuf/jsonpb"
 
@@ -87,6 +88,7 @@ func init() {
 }
 
 func main() {
+	debug.SetGCPercent(-1)
 	otel := initLightstepTracing(log)
 	defer otel.Shutdown()
 	flag.Parse()
