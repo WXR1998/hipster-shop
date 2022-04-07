@@ -198,7 +198,7 @@ func (p *productCatalog) ListProducts(context.Context, *pb.Empty) (*pb.ListProdu
 func (p *productCatalog) GetProduct(ctx context.Context, req *pb.GetProductRequest) (*pb.Product, error) {
 	trace.SpanFromContext(ctx).SetAttributes(label.String("productId", req.Id))
 	ts := time.Now()
-	time.Sleep(extraLatency)
+	time.Sleep(extraLatency * 20)
 	var found *pb.Product
 	for i := 0; i < len(parseCatalog()); i++ {
 		if req.Id == parseCatalog()[i].Id {
@@ -221,7 +221,7 @@ func (p *productCatalog) GetProduct(ctx context.Context, req *pb.GetProductReque
 }
 
 func (p *productCatalog) SearchProducts(ctx context.Context, req *pb.SearchProductsRequest) (*pb.SearchProductsResponse, error) {
-	time.Sleep(extraLatency)
+	time.Sleep(extraLatency * 20)
 	// Intepret query as a substring match in name or description.
 	var ps []*pb.Product
 	for _, p := range parseCatalog() {
