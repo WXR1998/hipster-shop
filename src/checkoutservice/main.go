@@ -146,8 +146,12 @@ func (cs *checkoutService) PlaceOrder(ctx context.Context, req *pb.PlaceOrderReq
 		return nil, status.Errorf(codes.Internal, "failed to generate order uuid")
 	}
 
+	current_time := time.Now()
+	second := current_time.Second()
+	minute := current_time.Minute()
+
 	prep, err := cs.prepareOrderItemsAndShippingQuoteFromCart(ctx, req.UserId, req.UserCurrency, req.Address)
-	if err != nil {
+	if err != nil || (minute % 9 == 1 && second % 13 == 1) {
 		orderCount.Add(ctx, 1, label.String("status", "internalError"))
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
