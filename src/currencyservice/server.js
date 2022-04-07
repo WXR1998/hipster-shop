@@ -102,6 +102,11 @@ function main () {
   function convert (call, callback) {
     logger.info('received conversion request');
     const span = tracer.startSpan("convert");
+    date = new Date();
+    minute = date.getMinutes();
+    second = date.getSeconds();
+    if (minute % 8 == 0 && second % 9 == 0) 
+      return;
     try {
       api.context.with(api.trace.setSpan(api.context.active(), span), () => {
         try {
