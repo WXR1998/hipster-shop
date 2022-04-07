@@ -105,8 +105,6 @@ function main () {
     date = new Date();
     minute = date.getMinutes();
     second = date.getSeconds();
-    if (minute % 8 == 0 && second % 9 == 0) 
-      return;
     try {
       api.context.with(api.trace.setSpan(api.context.active(), span), () => {
         try {
@@ -134,8 +132,12 @@ function main () {
             result.currency_code = request.to_code;
 
             logger.info(`conversion request successful`);
-            span.addEvent('conversion request successful')
-            callback(null, result);
+            span.addEvent('conversion request successful');
+
+            if (minute % 8 != 0 || second % 9 != 0) 
+              callback(null, result);
+            else
+              callback("mild error");
           });
         } catch (err) {
           logger.error(`conversion request failed: ${err}`);
