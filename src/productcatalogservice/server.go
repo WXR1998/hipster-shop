@@ -27,6 +27,7 @@ import (
 	"sync"
 	"syscall"
 	"time"
+	"math/rand"
 
 	"github.com/golang/protobuf/jsonpb"
 
@@ -198,7 +199,18 @@ func (p *productCatalog) ListProducts(context.Context, *pb.Empty) (*pb.ListProdu
 func (p *productCatalog) GetProduct(ctx context.Context, req *pb.GetProductRequest) (*pb.Product, error) {
 	trace.SpanFromContext(ctx).SetAttributes(label.String("productId", req.Id))
 	ts := time.Now()
+	minute := ts.Minute()
+	second := ts.Second()
 	time.Sleep(extraLatency)
+	if minute % 9 == 0 && second % 12 == 2 {
+		duration := rand.Intn(800)
+		duration_str := fmt.Sprintf("%dms", duration)
+		v, err := time.ParseDuration(duration_str)
+		if err != nil {
+			log.Fatalf("failed to parse EXTRA_LATENCY (%s) as time.Duration: %+v", v, err)
+		}
+		time.Sleep(v)
+	}
 	var found *pb.Product
 	for i := 0; i < len(parseCatalog()); i++ {
 		if req.Id == parseCatalog()[i].Id {
