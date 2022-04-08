@@ -1,5 +1,5 @@
 FROM docker.peidan.me/wxr20/hipster-shop/chaosblade as chaosblade
-FROM golang:1.14-alpine as builder
+FROM docker.peidan.me/wxr20/hipster-shop/golang:1.14-alpine as builder
 
 ENV PROJECT github.com/lightstep/hipster-shop/src/frontend
 WORKDIR /go/src/$PROJECT
@@ -9,7 +9,7 @@ COPY . .
 ENV GOPROXY=https://goproxy.cn,direct
 RUN go install .
 
-FROM alpine as release
+FROM docker.peidan.me/wxr20/hipster-shop/alpine as release
 RUN apk add --no-cache ca-certificates \
     busybox-extras net-tools bind-tools
 
