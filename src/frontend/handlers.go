@@ -31,10 +31,10 @@ import (
 	pb "github.com/lightstep/hipster-shop/src/frontend/genproto"
 	"github.com/lightstep/hipster-shop/src/frontend/money"
 
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/label"
-	"go.opentelemetry.io/otel/metric"
-	"go.opentelemetry.io/otel/trace"
+	// "go.opentelemetry.io/otel"
+	// "go.opentelemetry.io/otel/label"
+	// "go.opentelemetry.io/otel/metric"
+	// "go.opentelemetry.io/otel/trace"
 )
 
 var (
@@ -42,10 +42,10 @@ var (
 			Funcs(template.FuncMap{
 			"renderMoney": renderMoney,
 		}).ParseGlob("templates/*.html"))
-	meter           = otel.Meter("frontend")
-	checkoutCounter = metric.Must(meter).NewInt64Counter("frontend.checkout.count")
-	productCounter  = metric.Must(meter).NewInt64Counter("frontend.product.count")
-	cartCounter     = metric.Must(meter).NewInt64Counter("frontend.cart.count")
+	// meter           = otel.Meter("frontend")
+	// checkoutCounter = metric.Must(meter).NewInt64Counter("frontend.checkout.count")
+	// productCounter  = metric.Must(meter).NewInt64Counter("frontend.product.count")
+	// cartCounter     = metric.Must(meter).NewInt64Counter("frontend.cart.count")
 )
 
 func (fe *frontendServer) homeHandler(w http.ResponseWriter, r *http.Request) {
@@ -104,10 +104,10 @@ func (fe *frontendServer) homeHandler(w http.ResponseWriter, r *http.Request) {
 func (fe *frontendServer) productHandler(w http.ResponseWriter, r *http.Request) {
 	log := r.Context().Value(ctxKeyLog{}).(logrus.FieldLogger)
 	id := mux.Vars(r)["id"]
-	productLabel := label.String("productId", id)
+	// productLabel := label.String("productId", id)
 	if id == "" {
-		trace.SpanFromContext(r.Context()).SetAttributes(label.Bool("error", true))
-		productCounter.Add(r.Context(), 1, productLabel, label.Int("status", http.StatusBadRequest))
+		// trace.SpanFromContext(r.Context()).SetAttributes(label.Bool("error", true))
+		// productCounter.Add(r.Context(), 1, productLabel, label.Int("status", http.StatusBadRequest))
 		renderHTTPError(log, r, w, errors.New("product id not specified"), http.StatusBadRequest)
 		return
 	}
@@ -116,39 +116,39 @@ func (fe *frontendServer) productHandler(w http.ResponseWriter, r *http.Request)
 
 	p, err := fe.getProduct(r.Context(), id)
 	if err != nil {
-		trace.SpanFromContext(r.Context()).SetAttributes(label.Bool("error", true))
-		productCounter.Add(r.Context(), 1, productLabel, label.Int("status", http.StatusInternalServerError))
+		// trace.SpanFromContext(r.Context()).SetAttributes(label.Bool("error", true))
+		// productCounter.Add(r.Context(), 1, productLabel, label.Int("status", http.StatusInternalServerError))
 		renderHTTPError(log, r, w, errors.Wrap(err, "could not retrieve product"), http.StatusInternalServerError)
 		return
 	}
 	currencies, err := fe.getCurrencies(r.Context())
 	if err != nil {
-		trace.SpanFromContext(r.Context()).SetAttributes(label.Bool("error", true))
-		productCounter.Add(r.Context(), 1, productLabel, label.Int("status", http.StatusInternalServerError))
+		// trace.SpanFromContext(r.Context()).SetAttributes(label.Bool("error", true))
+		// productCounter.Add(r.Context(), 1, productLabel, label.Int("status", http.StatusInternalServerError))
 		renderHTTPError(log, r, w, errors.Wrap(err, "could not retrieve currencies"), http.StatusInternalServerError)
 		return
 	}
 
 	cart, err := fe.getCart(r.Context(), sessionID(r))
 	if err != nil {
-		trace.SpanFromContext(r.Context()).SetAttributes(label.Bool("error", true))
-		productCounter.Add(r.Context(), 1, productLabel, label.Int("status", http.StatusInternalServerError))
+		// trace.SpanFromContext(r.Context()).SetAttributes(label.Bool("error", true))
+		// productCounter.Add(r.Context(), 1, productLabel, label.Int("status", http.StatusInternalServerError))
 		renderHTTPError(log, r, w, errors.Wrap(err, "could not retrieve cart"), http.StatusInternalServerError)
 		return
 	}
 
 	price, err := fe.convertCurrency(r.Context(), p.GetPriceUsd(), currentCurrency(r))
 	if err != nil {
-		trace.SpanFromContext(r.Context()).SetAttributes(label.Bool("error", true))
-		productCounter.Add(r.Context(), 1, productLabel, label.Int("status", http.StatusInternalServerError))
+		// trace.SpanFromContext(r.Context()).SetAttributes(label.Bool("error", true))
+		// productCounter.Add(r.Context(), 1, productLabel, label.Int("status", http.StatusInternalServerError))
 		renderHTTPError(log, r, w, errors.Wrap(err, "failed to convert currency"), http.StatusInternalServerError)
 		return
 	}
 
 	recommendations, err := fe.getRecommendations(r.Context(), sessionID(r), []string{id})
 	if err != nil {
-		trace.SpanFromContext(r.Context()).SetAttributes(label.Bool("error", true))
-		productCounter.Add(r.Context(), 1, productLabel, label.Int("status", http.StatusInternalServerError))
+		// trace.SpanFromContext(r.Context()).SetAttributes(label.Bool("error", true))
+		// productCounter.Add(r.Context(), 1, productLabel, label.Int("status", http.StatusInternalServerError))
 		renderHTTPError(log, r, w, errors.Wrap(err, "failed to get product recommendations"), http.StatusInternalServerError)
 		return
 	}
@@ -170,18 +170,18 @@ func (fe *frontendServer) productHandler(w http.ResponseWriter, r *http.Request)
 	}); err != nil {
 		log.Println(err)
 	}
-	productCounter.Add(r.Context(), 1, productLabel, label.Int("status", http.StatusOK))
+	// productCounter.Add(r.Context(), 1, productLabel, label.Int("status", http.StatusOK))
 }
 
 func (fe *frontendServer) addToCartHandler(w http.ResponseWriter, r *http.Request) {
 	log := r.Context().Value(ctxKeyLog{}).(logrus.FieldLogger)
 	quantity, _ := strconv.ParseUint(r.FormValue("quantity"), 10, 32)
 	productID := r.FormValue("product_id")
-	productLabel := label.String("productId", productID)
+	// productLabel := label.String("productId", productID)
 	if productID == "" || quantity == 0 {
-		trace.SpanFromContext(r.Context()).SetAttributes(label.Bool("error", true))
-		trace.SpanFromContext(r.Context()).AddEvent("product id invalid or invalid quantity (0)")
-		cartCounter.Add(r.Context(), 1, label.String("productId", "none"), label.Int("status", http.StatusBadRequest))
+		// trace.SpanFromContext(r.Context()).SetAttributes(label.Bool("error", true))
+		// trace.SpanFromContext(r.Context()).AddEvent("product id invalid or invalid quantity (0)")
+		// cartCounter.Add(r.Context(), 1, label.String("productId", "none"), label.Int("status", http.StatusBadRequest))
 		renderHTTPError(log, r, w, errors.New("invalid form input"), http.StatusBadRequest)
 		return
 	}
@@ -189,23 +189,23 @@ func (fe *frontendServer) addToCartHandler(w http.ResponseWriter, r *http.Reques
 
 	p, err := fe.getProduct(r.Context(), productID)
 	if err != nil {
-		trace.SpanFromContext(r.Context()).SetAttributes(label.Bool("error", true))
-		trace.SpanFromContext(r.Context()).AddEvent("could not retreive product")
-		cartCounter.Add(r.Context(), 1, productLabel, label.Int("status", http.StatusInternalServerError))
+		// trace.SpanFromContext(r.Context()).SetAttributes(label.Bool("error", true))
+		// trace.SpanFromContext(r.Context()).AddEvent("could not retreive product")
+		// cartCounter.Add(r.Context(), 1, productLabel, label.Int("status", http.StatusInternalServerError))
 		renderHTTPError(log, r, w, errors.Wrap(err, "could not retrieve product"), http.StatusInternalServerError)
 		return
 	}
 
 	if err := fe.insertCart(r.Context(), sessionID(r), p.GetId(), int32(quantity)); err != nil {
-		trace.SpanFromContext(r.Context()).SetAttributes(label.Bool("error", true))
-		trace.SpanFromContext(r.Context()).AddEvent("failed to add to cart")
-		cartCounter.Add(r.Context(), 1, productLabel, label.Int("status", http.StatusInternalServerError))
+		// trace.SpanFromContext(r.Context()).SetAttributes(label.Bool("error", true))
+		// trace.SpanFromContext(r.Context()).AddEvent("failed to add to cart")
+		// cartCounter.Add(r.Context(), 1, productLabel, label.Int("status", http.StatusInternalServerError))
 		renderHTTPError(log, r, w, errors.Wrap(err, "failed to add to cart"), http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("location", "/cart")
 	w.WriteHeader(http.StatusFound)
-	cartCounter.Add(r.Context(), 1, productLabel, label.Int("status", http.StatusOK))
+	// cartCounter.Add(r.Context(), 1, productLabel, label.Int("status", http.StatusOK))
 }
 
 func (fe *frontendServer) emptyCartHandler(w http.ResponseWriter, r *http.Request) {
@@ -326,8 +326,8 @@ func (fe *frontendServer) placeOrderHandler(w http.ResponseWriter, r *http.Reque
 				Country:       country},
 		})
 	if err != nil {
-		checkoutCounter.Add(r.Context(), 1, label.String("status", "error"))
-		trace.SpanFromContext(r.Context()).SetAttributes(label.Bool("error", true))
+		// checkoutCounter.Add(r.Context(), 1, label.String("status", "error"))
+		// trace.SpanFromContext(r.Context()).SetAttributes(label.Bool("error", true))
 		renderHTTPError(log, r, w, errors.Wrap(err, "failed to complete the order"), http.StatusInternalServerError)
 		return
 	}
@@ -351,7 +351,7 @@ func (fe *frontendServer) placeOrderHandler(w http.ResponseWriter, r *http.Reque
 	}); err != nil {
 		log.Println(err)
 	}
-	checkoutCounter.Add(r.Context(), 1, label.String("status", "ok"))
+	// checkoutCounter.Add(r.Context(), 1, label.String("status", "ok"))
 }
 
 func (fe *frontendServer) logoutHandler(w http.ResponseWriter, r *http.Request) {
