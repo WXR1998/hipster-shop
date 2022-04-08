@@ -67,10 +67,10 @@ module.exports = function charge (request) {
   } = cardInfo.getCardDetails();
 
   if (!valid) { 
-    span.addEvent("invalid card")
+    // span.addEvent("invalid card")
     throw new InvalidCreditCard(); 
   }
-  span.setAttribute('card', cardType);
+  // span.setAttribute('card', cardType);
   // Only VISA and mastercard is accepted, other card types (AMEX, dinersclub) will
   // throw UnacceptedCreditCard error.
   if (!(cardType === 'visa' || cardType === 'mastercard')) { throw new UnacceptedCreditCard(cardType); }
