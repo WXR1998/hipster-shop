@@ -24,12 +24,12 @@ import (
 	pb "github.com/lightstep/hipster-shop/src/checkoutservice/genproto"
 	"github.com/lightstep/hipster-shop/src/checkoutservice/money"
 	"github.com/google/uuid"
-	"github.com/lightstep/otel-launcher-go/launcher"
+	// "github.com/lightstep/otel-launcher-go/launcher"
 	"github.com/sirupsen/logrus"
-	grpcotel "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/label"
-	"go.opentelemetry.io/otel/metric"
+	// grpcotel "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	// "go.opentelemetry.io/otel"
+	// "go.opentelemetry.io/otel/label"
+	// "go.opentelemetry.io/otel/metric"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
@@ -43,8 +43,8 @@ const (
 
 var (
 	log        *logrus.Logger
-	meter      = otel.Meter("checkoutservice/metrics")
-	orderCount = metric.Must(meter).NewInt64Counter("checkoutservice.order")
+	// meter      = otel.Meter("checkoutservice/metrics")
+	// orderCount = metric.Must(meter).NewInt64Counter("checkoutservice.order")
 )
 
 func init() {
@@ -71,8 +71,8 @@ type checkoutService struct {
 }
 
 func main() {
-	otel := initLightstepTracing(log)
-	defer otel.Shutdown()
+	// otel := initLightstepTracing(log)
+	// defer otel.Shutdown()
 
 	port := listenPort
 	if os.Getenv("PORT") != "" {
@@ -95,8 +95,8 @@ func main() {
 	}
 
 	srv := grpc.NewServer(
-		grpc.UnaryInterceptor(grpcotel.UnaryServerInterceptor()),
-		grpc.StreamInterceptor(grpcotel.StreamServerInterceptor()),
+		// grpc.UnaryInterceptor(grpcotel.UnaryServerInterceptor()),
+		// grpc.StreamInterceptor(grpcotel.StreamServerInterceptor()),
 	)
 	pb.RegisterCheckoutServiceServer(srv, svc)
 	healthpb.RegisterHealthServer(srv, svc)
@@ -105,17 +105,17 @@ func main() {
 	log.Fatal(err)
 }
 
-func initLightstepTracing(log logrus.FieldLogger) launcher.Launcher {
-	launcher := launcher.ConfigureOpentelemetry(
-		launcher.WithServiceVersion("5.3.1"),
-		launcher.WithLogLevel("debug"),
-		launcher.WithSpanExporterEndpoint(fmt.Sprintf("%s:%s",
-			os.Getenv("LIGHTSTEP_HOST"), os.Getenv("LIGHTSTEP_PORT"))),
-		launcher.WithLogger(log),
-	)
-	log.Info("Initialized Lightstep OpenTelemetry launcher")
-	return launcher
-}
+// func initLightstepTracing(log logrus.FieldLogger) launcher.Launcher {
+// 	launcher := launcher.ConfigureOpentelemetry(
+// 		launcher.WithServiceVersion("5.3.1"),
+// 		launcher.WithLogLevel("debug"),
+// 		launcher.WithSpanExporterEndpoint(fmt.Sprintf("%s:%s",
+// 			os.Getenv("LIGHTSTEP_HOST"), os.Getenv("LIGHTSTEP_PORT"))),
+// 		launcher.WithLogger(log),
+// 	)
+// 	log.Info("Initialized Lightstep OpenTelemetry launcher")
+// 	return launcher
+// }
 
 func mustMapEnv(target *string, envKey string) {
 	v := os.Getenv(envKey)
@@ -142,13 +142,13 @@ func (cs *checkoutService) PlaceOrder(ctx context.Context, req *pb.PlaceOrderReq
 
 	orderID, err := uuid.NewUUID()
 	if err != nil {
-		orderCount.Add(ctx, 1, label.String("status", "internalError"))
+		// orderCount.Add(ctx, 1, label.String("status", "internalError"))
 		return nil, status.Errorf(codes.Internal, "failed to generate order uuid")
 	}
 
 	prep, err := cs.prepareOrderItemsAndShippingQuoteFromCart(ctx, req.UserId, req.UserCurrency, req.Address)
 	if err != nil {
-		orderCount.Add(ctx, 1, label.String("status", "internalError"))
+		// orderCount.Add(ctx, 1, label.String("status", "internalError"))
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
@@ -162,14 +162,14 @@ func (cs *checkoutService) PlaceOrder(ctx context.Context, req *pb.PlaceOrderReq
 
 	txID, err := cs.chargeCard(ctx, &total, req.CreditCard)
 	if err != nil {
-		orderCount.Add(ctx, 1, label.String("status", "chargeError"))
+		// orderCount.Add(ctx, 1, label.String("status", "chargeError"))
 		return nil, status.Errorf(codes.Internal, "failed to charge card: %+v", err)
 	}
 	log.Infof("payment went through (transaction_id: %s)", txID)
 
 	shippingTrackingID, err := cs.shipOrder(ctx, req.Address, prep.cartItems)
 	if err != nil {
-		orderCount.Add(ctx, 1, label.String("status", "shippingError"))
+		// orderCount.Add(ctx, 1, label.String("status", "shippingError"))
 		return nil, status.Errorf(codes.Unavailable, "shipping error: %+v", err)
 	}
 
@@ -189,7 +189,7 @@ func (cs *checkoutService) PlaceOrder(ctx context.Context, req *pb.PlaceOrderReq
 		log.Infof("order confirmation email sent to %q", req.Email)
 	}
 	resp := &pb.PlaceOrderResponse{Order: orderResult}
-	orderCount.Add(ctx, 1, label.String("status", "ok"))
+	// orderCount.Add(ctx, 1, label.String("status", "ok"))
 	return resp, nil
 }
 
@@ -358,7 +358,7 @@ func getConnection(ctx context.Context, target string) (conn *grpc.ClientConn, e
 	return grpc.DialContext(ctx,
 		target,
 		grpc.WithInsecure(),
-		grpc.WithUnaryInterceptor(grpcotel.UnaryClientInterceptor()),
-		grpc.WithStreamInterceptor(grpcotel.StreamClientInterceptor()),
+		// grpc.WithUnaryInterceptor(grpcotel.UnaryClientInterceptor()),
+		// grpc.WithStreamInterceptor(grpcotel.StreamClientInterceptor()),
 	)
 }
