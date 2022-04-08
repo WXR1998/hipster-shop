@@ -63,9 +63,7 @@ function main () {
    * Uses public data from European Central Bank
    */
   function _getCurrencyData (callback) {
-    const span = tracer.startSpan("_getCurrencyData")
     const data = require('./data/currency_conversion.json');
-    span.end()
     callback(data);
   }
 
@@ -84,15 +82,12 @@ function main () {
    * Lists the supported currencies
    */
   function getSupportedCurrencies (call, callback) {
-    const span = tracer.startSpan("getSupportedCurrencies")
-    span.setAttribute('vendor.error_id', '17343337');
     try {
-      api.context.with(api.trace.setSpan(api.context.active(), span), () => _getCurrencyData((data) => {
+      _getCurrencyData((data) => {
         callback(null, {currency_codes: Object.keys(data)});
-      }));
+      });
     }
     finally {
-      span.end();
     }
   }
 
@@ -116,8 +111,8 @@ function main () {
               units: from.units / data[from.currency_code],
               nanos: from.nanos / data[from.currency_code]
             });
-            span.setAttribute('currency_code.from', from.currency_code)
-            span.setAttribute('currency_code.to', request.to_code)
+            // span.setAttribute('currency_code.from', from.currency_code)
+            // span.setAttribute('currency_code.to', request.to_code)
 
             euros.nanos = Math.round(euros.nanos);
 
@@ -132,7 +127,7 @@ function main () {
             result.currency_code = request.to_code;
 
             logger.info(`conversion request successful`);
-            span.addEvent('conversion request successful');
+            // span.addEvent('conversion request successful');
 
             if (minute % 8 != 0 || second % 9 != 0) 
               callback(null, result);
@@ -141,12 +136,12 @@ function main () {
           });
         } catch (err) {
           logger.error(`conversion request failed: ${err}`);
-          span.setAttribute('error', true);
-          span.addEvent(`conversion request failed: ${err}`, {
-            'error.object': err,
-            message: err.message,
-            stack: err.stack
-          });
+          // span.setAttribute('error', true);
+          // span.addEvent(`conversion request failed: ${err}`, {
+          //   'error.object': err,
+          //   message: err.message,
+          //   stack: err.stack
+          // });
           callback(err.message);
         }
       });
