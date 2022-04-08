@@ -61,25 +61,25 @@ namespace cartservice
                 cartStore = new LocalCartStore();
             }
 
-            services.AddOpenTelemetryTracing((builder) => builder
-                .AddSource(activitySource.Name)
-                .AddAspNetCoreInstrumentation(opt =>
-                {
-                    opt.EnableGrpcAspNetCoreSupport = true;
-                })
-                .AddHttpClientInstrumentation()
-                .AddGrpcClientInstrumentation()
-                .AddConsoleExporter()
-                .AddRedisInstrumentation(cartStore.Connection)
-                .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName))
-                .AddOtlpExporter(opt => {
-                    opt.Endpoint = $"{lsHost}:{lsPort}";
-                    opt.Headers = new Metadata
-                    {
-                        { "lightstep-access-token", accessToken }
-                    };
-                    opt.Credentials = new SslCredentials();
-            }));
+            // services.AddOpenTelemetryTracing((builder) => builder
+            //     .AddSource(activitySource.Name)
+            //     .AddAspNetCoreInstrumentation(opt =>
+            //     {
+            //         opt.EnableGrpcAspNetCoreSupport = true;
+            //     })
+            //     .AddHttpClientInstrumentation()
+            //     .AddGrpcClientInstrumentation()
+            //     .AddConsoleExporter()
+            //     .AddRedisInstrumentation(cartStore.Connection)
+            //     .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName))
+            //     .AddOtlpExporter(opt => {
+            //         opt.Endpoint = $"{lsHost}:{lsPort}";
+            //         opt.Headers = new Metadata
+            //         {
+            //             { "lightstep-access-token", accessToken }
+            //         };
+            //         opt.Credentials = new SslCredentials();
+            // }));
 
             // Initialize the redis store
             cartStore.InitializeAsync().GetAwaiter().GetResult();
