@@ -34,17 +34,17 @@ import (
 	pb "github.com/lightstep/hipster-shop/src/productcatalogservice/genproto"
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 
-	"github.com/lightstep/otel-launcher-go/launcher"
+	// "github.com/lightstep/otel-launcher-go/launcher"
 	"github.com/sirupsen/logrus"
-	grpcotel "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	// grpcotel "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/label"
-	"go.opentelemetry.io/otel/metric"
-	"go.opentelemetry.io/otel/trace"
+	// "go.opentelemetry.io/otel"
+	// "go.opentelemetry.io/otel/label"
+	// "go.opentelemetry.io/otel/metric"
+	// "go.opentelemetry.io/otel/trace"
 )
 
 var (
@@ -56,17 +56,17 @@ var (
 	port = "3550"
 
 	reloadCatalog       bool
-	meter               = otel.Meter("productcatalogservice/metrics")
-	gpLock              = new(sync.RWMutex)
-	gpValue             = new(float64)
-	gpLabels            = new([]label.KeyValue)
-	getProductsObserver = metric.Must(meter).NewFloat64ValueObserver("catalog.getProducts.time", func(ctx context.Context, result metric.Float64ObserverResult) {
-		(*gpLock).RLock()
-		value := *gpValue
-		labels := *gpLabels
-		(*gpLock).RUnlock()
-		result.Observe(value, labels...)
-	})
+	// meter               = otel.Meter("productcatalogservice/metrics")
+	// gpLock              = new(sync.RWMutex)
+	// gpValue             = new(float64)
+	// gpLabels            = new([]label.KeyValue)
+	// getProductsObserver = metric.Must(meter).NewFloat64ValueObserver("catalog.getProducts.time", func(ctx context.Context, result metric.Float64ObserverResult) {
+	// 	(*gpLock).RLock()
+	// 	value := *gpValue
+	// 	labels := *gpLabels
+	// 	(*gpLock).RUnlock()
+	// 	result.Observe(value, labels...)
+	// })
 )
 
 func init() {
@@ -89,8 +89,8 @@ func init() {
 
 func main() {
 	debug.SetGCPercent(-1)
-	otel := initLightstepTracing(log)
-	defer otel.Shutdown()
+	// otel := initLightstepTracing(log)
+	// defer otel.Shutdown()
 	flag.Parse()
 
 	// set injected latency
@@ -135,8 +135,8 @@ func run(port string) string {
 		log.Fatal(err)
 	}
 	srv := grpc.NewServer(
-		grpc.UnaryInterceptor(grpcotel.UnaryServerInterceptor()),
-		grpc.StreamInterceptor(grpcotel.StreamServerInterceptor()),
+		// grpc.UnaryInterceptor(grpcotel.UnaryServerInterceptor()),
+		// grpc.StreamInterceptor(grpcotel.StreamServerInterceptor()),
 	)
 
 	svc := &productCatalog{}
@@ -147,14 +147,14 @@ func run(port string) string {
 	return l.Addr().String()
 }
 
-func initLightstepTracing(log logrus.FieldLogger) launcher.Launcher {
-	launcher := launcher.ConfigureOpentelemetry(
-		launcher.WithLogLevel("debug"),
-		launcher.WithLogger(log),
-	)
-	log.Info("Initialized Lightstep OpenTelemetry launcher")
-	return launcher
-}
+// func initLightstepTracing(log logrus.FieldLogger) launcher.Launcher {
+// 	launcher := launcher.ConfigureOpentelemetry(
+// 		launcher.WithLogLevel("debug"),
+// 		launcher.WithLogger(log),
+// 	)
+// 	log.Info("Initialized Lightstep OpenTelemetry launcher")
+// 	return launcher
+// }
 
 type productCatalog struct{}
 
@@ -198,8 +198,8 @@ func (p *productCatalog) ListProducts(context.Context, *pb.Empty) (*pb.ListProdu
 }
 
 func (p *productCatalog) GetProduct(ctx context.Context, req *pb.GetProductRequest) (*pb.Product, error) {
-	trace.SpanFromContext(ctx).SetAttributes(label.String("productId", req.Id))
-	ts := time.Now()
+	// trace.SpanFromContext(ctx).SetAttributes(label.String("productId", req.Id))
+	// ts := time.Now()
 	time.Sleep(extraLatency)
 	var found *pb.Product
 	for i := 0; i < len(parseCatalog()); i++ {
@@ -207,15 +207,15 @@ func (p *productCatalog) GetProduct(ctx context.Context, req *pb.GetProductReque
 			found = parseCatalog()[i]
 		}
 	}
-	if found != nil {
-		trace.SpanFromContext(ctx).SetAttributes(label.Bool("error", true))
+	if found == nil {
+		// trace.SpanFromContext(ctx).SetAttributes(label.Bool("error", true))
 		return nil, status.Errorf(codes.NotFound, "no product with ID %s", req.Id)
 	}
-	elapsed := time.Since(ts)
-	(*gpLock).Lock()
-	*gpValue = elapsed.Seconds()
-	*gpLabels = []label.KeyValue{label.String("productId", found.Id)}
-	(*gpLock).Unlock()
+	// elapsed := time.Since(ts)
+	// (*gpLock).Lock()
+	// *gpValue = elapsed.Seconds()
+	// *gpLabels = []label.KeyValue{label.String("productId", found.Id)}
+	// (*gpLock).Unlock()
 	return found, nil
 }
 
